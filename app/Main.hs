@@ -1,3 +1,5 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Main where
 
 import Control.Concurrent
@@ -20,8 +22,9 @@ main = do
   renderer <- sdlRenderer window
   sdlSetDrawColorWhite renderer
   texture <- sdlLoadPngTexture renderer "data/images/zluk.png"
-  _ <- forkOS $ computeLoop ComputeFrame {cfps = fps, eventsChan, computeChan, state = Triangle}
-  renderLoop RenderFrame {rfps = fps, renderer, eventsChan, computeChan, texture, state = Triangle}
+  let state = Triangle
+  _ <- forkOS $ computeLoop ComputeFrame {cfps = fps, ..}
+  renderLoop RenderFrame {rfps = fps, ..}
   sdlQuit
 
 data RenderFrame = RenderFrame
@@ -43,7 +46,7 @@ animationAtlasPosition tick =
    in sdlFRect x y w h
 
 renderLoop :: RenderFrame -> IO ()
-renderLoop rf@RenderFrame {rfps, renderer, eventsChan, computeChan, texture, state} = do
+renderLoop rf@RenderFrame{..} = do
   tick <- getTick
   fps' <- updateAndPrintFps "render" rfps
   events <- sdlPollEvents
@@ -97,7 +100,7 @@ drainTChan chan = atomically $ drainTChan' chan []
         Just item -> drainTChan' ch (item : acc)
 
 computeLoop :: ComputeFrame -> IO ()
-computeLoop cf@ComputeFrame {cfps, eventsChan, computeChan, state} = do
+computeLoop cf@ComputeFrame{..} = do
   threadDelay 100_000
   fps' <- updateAndPrintFps "compute" cfps
   evs <- drainTChan eventsChan
