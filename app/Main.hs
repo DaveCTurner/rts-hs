@@ -53,8 +53,8 @@ renderLoop rf@RenderFrame{..} = do
   if Quit `elem` events
     then return ()
     else do
-      unless (null events) $ atomically $ do writeTChan eventsChan events
-      m <- atomically $ do tryReadTChan computeChan
+      unless (null events) $ atomically $ writeTChan eventsChan events
+      m <- atomically $ tryReadTChan computeChan
       let state' = fromMaybe state m
       sdlRenderClear renderer
       sdlSetDrawColorBlack renderer
@@ -87,7 +87,7 @@ rectangle = [V2 100 100, V2 300 100, V2 300 300, V2 100 300]
 drawShape :: SDLRenderer -> [FPoint] -> IO ()
 drawShape r pts =
   let pairs = zip pts (tail pts) ++ [(head pts, last pts)]
-   in do mapM_ (uncurry (sdlRenderLine r)) pairs
+   in mapM_ (uncurry (sdlRenderLine r)) pairs
 
 drainTChan :: TChan a -> IO [a]
 drainTChan chan = atomically $ drainTChan' []
