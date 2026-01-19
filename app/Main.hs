@@ -103,7 +103,7 @@ computeLoop cf@ComputeFrame{..} = do
   threadDelay 100_000
   fps' <- updateAndPrintFps "compute" cfps
   evs <- drainTChan eventsChan
-  if any (== MouseDown) $ concat evs
+  if MouseDown `elem` concat evs
     then case state of
       Triangle -> do
         atomically $ writeTChan computeChan Triangle
