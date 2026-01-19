@@ -96,7 +96,7 @@ drainTChan chan = atomically $ drainTChan' []
       m <- tryReadTChan chan
       case m of
         Nothing -> return acc
-        Just item -> drainTChan' (item : acc)
+        Just item -> drainTChan' (item : acc) -- NB reverses order of items
 
 computeLoop :: ComputeFrame -> IO ()
 computeLoop cf@ComputeFrame{..} = do
