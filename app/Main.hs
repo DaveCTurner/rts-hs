@@ -90,14 +90,13 @@ drawShape r pts =
    in do mapM_ (uncurry (sdlRenderLine r)) pairs
 
 drainTChan :: TChan a -> IO [a]
-drainTChan chan = atomically $ drainTChan' chan []
+drainTChan chan = atomically $ drainTChan' []
   where
-    drainTChan' :: TChan a -> [a] -> STM [a]
-    drainTChan' ch acc = do
-      m <- tryReadTChan ch
+    drainTChan' acc = do
+      m <- tryReadTChan chan
       case m of
         Nothing -> return acc
-        Just item -> drainTChan' ch (item : acc)
+        Just item -> drainTChan' (item : acc)
 
 computeLoop :: ComputeFrame -> IO ()
 computeLoop cf@ComputeFrame{..} = do
